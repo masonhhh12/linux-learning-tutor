@@ -1,0 +1,60 @@
+
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 1120px;
+      margin: 50px auto;
+      padding: 0 20px;
+      background: #101827;
+      color: #eef2ff;
+    }
+    textarea, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 14px;
+      font: inherit;
+      border-radius: 8px;
+    }
+    textarea {
+      margin: 12px 0;
+      min-height: 110px;
+    }
+    button {
+      background: #93c5fd;
+      color: #101827;
+      border: 0;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    #answer {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.6;
+      margin-top: 24px;
+    }
+
+    :root { color-scheme: dark; }
+    h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 8px; }
+    p { color: #c1cce0; line-height: 1.6; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; }
+    .panel { background: #172338; border: 1px solid #33445f; border-radius: 16px; padding: 24px; min-width: 0; }
+    .lessons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 20px 0; }
+    .lesson-tab, .choice { background: #25354e; color: #eef2ff; text-align: left; font-size: .9rem; }
+    .lesson-tab[aria-pressed="true"] { background: #93c5fd; color: #101827; }
+    progress { width: 100%; accent-color: #7dd3fc; }
+    pre { overflow-x: auto; background: #0b1220; padding: 16px; border-radius: 8px; line-height: 1.7; }
+    .secondary { background: #25354e; color: #eef2ff; border: 1px solid #536887; margin-top: 10px; }
+    .choices { display: grid; gap: 8px; }
+    .correct { background: #a7f3d0; color: #062c22; }
+    .incorrect { background: #fecaca; color: #450a0a; }
+    #feedback { min-height: 3em; line-height: 1.5; margin: 16px 0; }
+    #conversation section { background: #101827; padding: 14px; border-radius: 10px; margin-top: 12px; line-height: 1.6; }
+    #conversation h2 { font-size: .85rem; color: #93c5fd; margin-top: 0; }
+    #conversation { max-height: 560px; overflow-y: auto; }
+    textarea { background: #0b1220; color: #eef2ff; border: 1px solid #536887; }
+    button:focus-visible, textarea:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
+    footer { color: #a8b7d0; font-size: .85rem; margin: 24px 0; line-height: 1.6; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .panel { padding: 18px; } }
+
+.message-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.account-bar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.account-bar button { width:auto; }

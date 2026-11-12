@@ -4,65 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Linux Learning Tutor</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      max-width: 1120px;
-      margin: 50px auto;
-      padding: 0 20px;
-      background: #101827;
-      color: #eef2ff;
-    }
-    textarea, button {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 14px;
-      font: inherit;
-      border-radius: 8px;
-    }
-    textarea {
-      margin: 12px 0;
-      min-height: 110px;
-    }
-    button {
-      background: #93c5fd;
-      color: #101827;
-      border: 0;
-      cursor: pointer;
-    }
-    button:disabled { opacity: 0.6; cursor: wait; }
-    #answer {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      line-height: 1.6;
-      margin-top: 24px;
-    }
-
-    :root { color-scheme: dark; }
-    h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 8px; }
-    p { color: #c1cce0; line-height: 1.6; }
-    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; }
-    .panel { background: #172338; border: 1px solid #33445f; border-radius: 16px; padding: 24px; min-width: 0; }
-    .lessons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 20px 0; }
-    .lesson-tab, .choice { background: #25354e; color: #eef2ff; text-align: left; font-size: .9rem; }
-    .lesson-tab[aria-pressed="true"] { background: #93c5fd; color: #101827; }
-    progress { width: 100%; accent-color: #7dd3fc; }
-    pre { overflow-x: auto; background: #0b1220; padding: 16px; border-radius: 8px; line-height: 1.7; }
-    .secondary { background: #25354e; color: #eef2ff; border: 1px solid #536887; margin-top: 10px; }
-    .choices { display: grid; gap: 8px; }
-    .correct { background: #a7f3d0; color: #062c22; }
-    .incorrect { background: #fecaca; color: #450a0a; }
-    #feedback { min-height: 3em; line-height: 1.5; margin: 16px 0; }
-    #conversation section { background: #101827; padding: 14px; border-radius: 10px; margin-top: 12px; line-height: 1.6; }
-    #conversation h2 { font-size: .85rem; color: #93c5fd; margin-top: 0; }
-    #conversation { max-height: 560px; overflow-y: auto; }
-    textarea { background: #0b1220; color: #eef2ff; border: 1px solid #536887; }
-    button:focus-visible, textarea:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
-    footer { color: #a8b7d0; font-size: .85rem; margin: 24px 0; line-height: 1.6; }
-    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .panel { padding: 18px; } }
-  </style>
+  <link rel="stylesheet" href="/assets/app.css">
 </head>
 <body>
+  <div class="account-bar"><span id="account-name"></span><button id="logout" type="button">Sign out</button></div>
   <header><p>LEARN BY DOING</p>
   <h1>Linux Learning Tutor</h1>
   <p>Build command-line confidence, one lesson at a time.</p></header>
@@ -94,201 +39,16 @@
     <button id="submit" type="submit">Ask tutor</button>
   </form>
 
-  <button id="new-chat" type="button" style="margin-top:12px">New chat</button>
+  <button id="new-chat" type="button" class="secondary">New chat</button>
   <div id="conversation"></div>
   <div id="answer" role="status" aria-live="polite"></div>
 
     </section>
   </main>
-  <footer>Practice questions do not run commands. Progress is saved in this browser when storage is available.
+  <footer>Practice questions do not run commands. Account progress is saved in this browser when storage is available.
     AI answers can make mistakes; check commands before running them.
     <a href="/docs">API documentation</a>
   </footer>
-  <script>
-    const form = document.getElementById("question-form");
-    const question = document.getElementById("question");
-    const button = document.getElementById("submit");
-    const answer = document.getElementById("answer");
-
-    const newChat = document.getElementById("new-chat");
-    const conversation = document.getElementById("conversation");
-    let history = [];
-
-    const lessons = [{"id": "navigation", "title": "Find your way", "description": "Use pwd to print your current directory, ls to list contents, and cd to move between directories.", "example": "pwd\nls\ncd Documents\ncd ..", "quiz": "Which command moves to the parent directory?", "choices": ["pwd", "cd ..", "ls"], "correct": 1, "explanation": "cd .. moves up one directory. The two dots refer to the parent directory."}, {"id": "files", "title": "Files and folders", "description": "mkdir creates a directory, touch creates an empty file if it does not exist, and cp copies files. Practice in a dedicated folder.", "example": "mkdir -p linux-practice\ncd linux-practice\ntouch notes.txt\ncp notes.txt notes-copy.txt", "quiz": "Which command copies notes.txt to backup.txt?", "choices": ["cd notes.txt backup.txt", "mkdir backup.txt", "cp notes.txt backup.txt"], "correct": 2, "explanation": "cp takes a source and destination. Existing destination files can be overwritten."}, {"id": "reading", "title": "Read text files", "description": "cat prints a file, head shows its first lines, and less lets you browse longer files. Press q to exit less.", "example": "cat /etc/os-release\nhead -n 5 /etc/os-release\nless /etc/os-release", "quiz": "How do you exit less?", "choices": ["Press q", "Press the space bar", "Type cd"], "correct": 0, "explanation": "Press q to quit less and return to the terminal."}, {"id": "search", "title": "Search text", "description": "grep finds matching lines. Use -i to ignore capitalization and -n to include line numbers.", "example": "grep -i 'name' /etc/os-release\ngrep -n 'ID' /etc/os-release", "quiz": "Which grep option ignores capitalization?", "choices": ["-n", "-i", "-l"], "correct": 1, "explanation": "grep -i matches without distinguishing uppercase and lowercase."}, {"id": "permissions", "title": "Permissions", "description": "Linux tracks read, write, and execute access for the owner, group, and others. chmod u+x adds execute permission for the owner.", "example": "ls -l notes.txt\n# For an existing script you created and trust:\nchmod u+x my-script.sh", "quiz": "What does chmod u+x my-script.sh add?", "choices": ["Write access for everyone", "A new owner", "Execute permission for the owner"], "correct": 2, "explanation": "u means owner, + means add, and x means execute."}, {"id": "pipes", "title": "Combine commands", "description": "A pipe sends output to the next command. The > operator writes to a file and overwrites existing contents; >> appends.", "example": "printf 'apple\\nbanana\\napricot\\n' | grep '^a'\nprintf 'apple\\nbanana\\napricot\\n' | grep '^a' | wc -l", "quiz": "What does the pipe symbol | do?", "choices": ["Sends output to the next command", "Deletes the previous command", "Always saves output to a file"], "correct": 0, "explanation": "A pipe connects standard output of the left command to standard input of the right command."}];
-    let completed = new Set();
-    try {
-      const saved = JSON.parse(localStorage.getItem("linux-tutor-progress") || "[]");
-      if (Array.isArray(saved)) completed = new Set(saved.filter(id => lessons.some(l => l.id === id)));
-    } catch {}
-    let activeLesson = 0;
-    const tabs = document.getElementById("lesson-tabs");
-
-    function renderLesson() {
-      const lesson = lessons[activeLesson];
-      tabs.replaceChildren();
-      lessons.forEach((item, index) => {
-        const tab = document.createElement("button");
-        tab.type = "button";
-        tab.className = "lesson-tab";
-        tab.textContent = (index + 1) + ". " + item.title + (completed.has(item.id) ? " ✓" : "");
-        tab.setAttribute("aria-pressed", String(index === activeLesson));
-        tab.addEventListener("click", () => { activeLesson = index; renderLesson(); });
-        tabs.append(tab);
-      });
-      document.getElementById("progress").value = completed.size;
-      document.getElementById("progress-label").textContent = completed.size === lessons.length
-        ? "All 6 lessons complete. Keep practicing with your tutor!"
-        : completed.size + " of 6 lessons complete";
-      document.getElementById("lesson-title").textContent = lesson.title;
-      document.getElementById("lesson-description").textContent = lesson.description;
-      document.getElementById("lesson-example").textContent = lesson.example;
-      document.getElementById("quiz-question").textContent = lesson.quiz;
-      document.getElementById("feedback").textContent = "";
-      const choices = document.getElementById("quiz-choices");
-      choices.replaceChildren();
-      lesson.choices.forEach((text, index) => {
-        const choice = document.createElement("button");
-        choice.type = "button";
-        choice.className = "choice";
-        choice.textContent = text;
-        choice.addEventListener("click", () => {
-          if (index === lesson.correct) {
-            completed.add(lesson.id);
-            let saved = true;
-            try { localStorage.setItem("linux-tutor-progress", JSON.stringify([...completed])); }
-            catch { saved = false; }
-            renderLesson();
-            const correct = document.getElementById("quiz-choices").children[index];
-            correct.classList.add("correct");
-            correct.focus();
-            document.getElementById("feedback").textContent = "Correct! " + lesson.explanation +
-              (saved ? "" : " Progress could not be saved in this browser.");
-          } else {
-            choice.classList.add("incorrect");
-            document.getElementById("feedback").textContent = "Try again. " + lesson.explanation;
-          }
-        });
-        choices.append(choice);
-      });
-      document.getElementById("next-lesson").disabled = activeLesson === lessons.length - 1;
-    }
-
-    document.getElementById("next-lesson").addEventListener("click", () => {
-      if (activeLesson < lessons.length - 1) { activeLesson++; renderLesson(); }
-    });
-    document.getElementById("explain").addEventListener("click", () => {
-      if (button.disabled) return;
-      question.value = "Explain this Linux topic for a beginner, with a safe practice example: " +
-        lessons[activeLesson].title;
-      question.focus();
-      question.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-    renderLesson();
-
-
-
-    function showMessage(label, text) {
-      const entry = document.createElement("section");
-      const heading = document.createElement("h2");
-      const body = document.createElement("div");
-      heading.textContent = label;
-      body.textContent = text;
-      body.style.whiteSpace = "pre-wrap";
-      body.style.overflowWrap = "anywhere";
-      entry.append(heading, body);
-      conversation.append(entry);
-      return body;
-    }
-
-    newChat.addEventListener("click", () => {
-      history = [];
-      conversation.replaceChildren();
-      answer.textContent = "";
-      question.value = "";
-      question.focus();
-    });
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (button.disabled) return;
-      const text = question.value.trim();
-      if (!text) {
-        answer.textContent = "Please enter a question.";
-        return;
-      }
-
-      button.disabled = true;
-      newChat.disabled = true;
-      answer.textContent = "Thinking…";
-
-      let tutorBody = null;
-      try {
-        const response = await fetch("/ask/stream", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: text, history })
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(typeof data.detail === "string"
-            ? data.detail : "The request failed. Please try again.");
-        }
-        if (!response.body) throw new Error("Streaming is unavailable in this browser.");
-
-        showMessage("You", text);
-        tutorBody = showMessage("Tutor", "");
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let reply = "";
-        let done = false;
-
-        function processLine(line) {
-          if (!line.trim()) return;
-          const item = JSON.parse(line);
-          if (item.error) throw new Error(item.error);
-          if (item.token) {
-            reply += item.token;
-            tutorBody.textContent = reply;
-            answer.textContent = "Writing…";
-          }
-          if (item.done) done = true;
-        }
-
-        try {
-          while (true) {
-            const part = await reader.read();
-            buffer += decoder.decode(part.value, { stream: !part.done });
-            let newline;
-            while ((newline = buffer.indexOf("\n")) !== -1) {
-              processLine(buffer.slice(0, newline));
-              buffer = buffer.slice(newline + 1);
-            }
-            if (part.done) break;
-          }
-          if (buffer.trim()) processLine(buffer);
-          if (!done || !reply.trim()) throw new Error("The response ended early. Please try again.");
-        } finally {
-          await reader.cancel().catch(() => {});
-          reader.releaseLock();
-        }
-
-        history.push(
-          { role: "user", content: text },
-          { role: "assistant", content: reply.slice(0, 16000) }
-        );
-        history = history.slice(-12);
-        question.value = "";
-        answer.textContent = "";
-      } catch (error) {
-        if (tutorBody) tutorBody.textContent += "\n[Response incomplete — not saved to chat memory.]";
-        answer.textContent = `Could not get an answer: ${error.message}`;
-      } finally {
-        button.disabled = false;
-        newChat.disabled = false;
-      }
-    });
-  </script>
+  <script src="/assets/app.js" defer></script>
 </body>
 </html>

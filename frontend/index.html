@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Linux Learning Tutor</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 760px;
+      margin: 50px auto;
+      padding: 0 20px;
+      background: #101827;
+      color: #eef2ff;
+    }
+    textarea, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 14px;
+      font: inherit;
+      border-radius: 8px;
+    }
+    textarea {
+      margin: 12px 0;
+      min-height: 110px;
+    }
+    button {
+      background: #93c5fd;
+      color: #101827;
+      border: 0;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    #answer {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.6;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Linux Learning Tutor</h1>
+  <p>Ask a question about Linux commands and concepts.</p>
+
+  <form id="question-form">
+    <label for="question">Your question</label>
+    <textarea id="question" maxlength="4000" required
+      placeholder="What does the pwd command do?"></textarea>
+    <button id="submit" type="submit">Ask tutor</button>
+  </form>
+
+  <div id="answer" role="status" aria-live="polite"></div>
+
+  <script>
+    const form = document.getElementById("question-form");
+    const question = document.getElementById("question");
+    const button = document.getElementById("submit");
+    const answer = document.getElementById("answer");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = question.value.trim();
+      if (!text) {
+        answer.textContent = "Please enter a question.";
+        return;
+      }
+
+      button.disabled = true;
+      answer.textContent = "Thinking…";
+
+      try {
+        const response = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: text })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            typeof data.detail === "string"
+              ? data.detail
+              : "The request failed. Please try again."
+          );
+        }
+
+        answer.textContent = data.answer;
+      } catch (error) {
+        answer.textContent = `Could not get an answer: ${error.message}`;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
